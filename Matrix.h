@@ -4,13 +4,15 @@
 #include "Row.h"
 #include <iostream>
 
+//#define IDENTITY_MATRIX 1
+
 template<class T>
 class Matrix {
 private:
     Row<T>* table;
     long long rows;
     long long cols;
-    bool info;
+
     void dMatrix();
 
 public:
@@ -44,9 +46,13 @@ public:
 
     Matrix<T> operator-=(const Matrix& other);
 
-    Matrix<T> operator*(Matrix<T>& other) const;
+    Matrix<T> operator*(const Matrix<T>& other) const;
 
-    Matrix<T>& operator*=(Matrix<T>& other);
+    Matrix<T> operator*(int a) const;
+
+    Matrix<T>& operator*=(int a);
+
+    Matrix<T>& operator*=(const Matrix<T>& other);
 
     friend std::ostream& operator<<(std::ostream& os, const Matrix<T>& matrix) {
         for(int i = 1; i <= matrix.rows; ++i) {
@@ -82,7 +88,7 @@ public:
 // --------------------------------------------------------------------------------------------------------------------
 
 template<class T>
-Matrix<T>::Matrix() = default;
+Matrix<T>::Matrix() : rows(0), cols(0), table(nullptr) {}
 
 template<class T>
 Matrix<T>::Matrix(long long int rows, long long int cols) : cols(cols), rows(rows) {
@@ -180,18 +186,18 @@ Matrix<T> Matrix<T>::operator-=(const Matrix& other) {
 }
 
 template<class T>
-Matrix<T> Matrix<T>::operator*(Matrix<T>& other) const {
+Matrix<T> Matrix<T>::operator*(const Matrix<T>& other) const {
     long long k = this->cols;
     Matrix<T> m(this->rows, other.cols);
     for(int i = 1; i <= m.rows; ++i) {
         for(int j = 1; j <= m.cols; ++j) {
             m[i][j] = 0;
-            std::cout << "c" << i << ';' << j << " = ";
+            std::cout << "c" << i << ';' << j << " =";
             for(int l = 1; l <= k; ++l) {
-                std::cout << " + " << (*this)[i][l] << " * " << other[l][j] << ' ';
+                std::cout << (l == 1 ? " " : "+ ") << (*this)[i][l] << " * " << other[l][j] << ' ';
                 m[i][j] += ((*this)[i][l]) * (other[l][j]);
             }
-            std::cout << '\n';
+            std::cout << "= " << m[i][j] << '\n';
         }
     }
     return m;
@@ -220,14 +226,16 @@ Matrix<T>& Matrix<T>::operator=(const Matrix& other) {
 
 template<class T>
 void Matrix<T>::dMatrix() {
-    for(int i = 0; i < rows; ++i) {
-        table[i].dCol();
+    if(table != nullptr) {
+        for(int i = 0; i < rows; ++i) {
+            table[i].dCol();
+        }
+        delete[] table;
     }
-    delete[] table;
 }
 
 template<class T>
-Matrix<T>& Matrix<T>::operator*=(Matrix<T>& other) {
+Matrix<T>& Matrix<T>::operator*=(const Matrix<T>& other) {
     (*this) = ((*this) * other);
     return *this;
 }
@@ -254,6 +262,27 @@ Matrix<T> Matrix<T>::Pow(int p) {
         m *= (*this);
     }
     return m;
+}
+
+template<class T>
+Matrix<T> Matrix<T>::operator*(int a) const {
+    Matrix<T> m(*this);
+    for(int i = 1; i <= rows; ++i) {
+        for(int j = 1; j <= cols; ++j) {
+            m[i][j] *= a;
+        }
+    }
+    return m;
+}
+
+template<class T>
+Matrix<T>& Matrix<T>::operator*=(int a) {
+    for(int i = 1; i <= rows; ++i) {
+        for(int j = 1; j <= cols; ++j) {
+            (*this)[i][j] *= a;
+        }
+    }
+    return *this;
 }
 
 /*template<class T>
