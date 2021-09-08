@@ -320,5 +320,18 @@ Matrix<T> Matrix<T>::Minor(int i0, int j0) {
     return m;
 }
 
+/*template<class T>
+Matrix<T>&& Matrix<T>::operator=(Matrix&& other) noexcept {
+    if(this->table != other.table) { // self-assignment
+        if(this->rows != other.rows || this->cols != other.cols) { // dif size
+            this->rows = other.rows;
+            this->cols = other.cols;
+        }
+        this->table = other.table;
+        other.table = nullptr;
+    }
+    return std::move(*this);
+}*/
+
 
 #endif //MATRIX_MATRIX_H
