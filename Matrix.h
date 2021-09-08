@@ -56,6 +56,8 @@ public:
 
     Matrix<T> Trans();
 
+    Matrix<T> Minor(int i0, int j0);
+
     friend std::ostream& operator<<(std::ostream& os, const Matrix<T>& matrix) {
         for(int i = 1; i <= matrix.rows; ++i) {
             for(int j = 1; j <= matrix.cols; ++j) {
@@ -289,26 +291,34 @@ Matrix<T>& Matrix<T>::operator*=(int a) {
 
 template<class T>
 Matrix<T> Matrix<T>::Trans() {
-    Matrix<T> m = new Matrix<T>(this->cols, this->rows);
+    Matrix<T> m = Matrix<T>(this->cols, this->rows);
     for(int i = 1; i <= m.rows; i++) {
         for(int j = 1; j <= m.cols; j++) {
-            m[i][j] = this[j][i];
+            m[i][j] = (*this)[j][i];
         }
     }
     return m;
 }
 
-/*template<class T>
-Matrix<T>&& Matrix<T>::operator=(Matrix&& other) noexcept {
-    if(this->table != other.table) { // self-assignment
-        if(this->rows != other.rows || this->cols != other.cols) { // dif size
-            this->rows = other.rows;
-            this->cols = other.cols;
+
+template<class T>
+Matrix<T> Matrix<T>::Minor(int i0, int j0) {
+    int p = 0, q = 0;
+    Matrix<T> m(this->rows - 1, this->cols - 1);
+    for(int i = 1; i <= m.rows; ++i) {
+        if(i == i0) {
+            p = 1;
         }
-        this->table = other.table;
-        other.table = nullptr;
+        q = 0;
+        for(int j = 1; j <= m.cols; ++j) {
+            if(j == j0) {
+                q = 1;
+            }
+            m[i][j] = (*this)[i + p][j + q];
+        }
     }
-    return std::move(*this);
-}*/
+    return m;
+}
+
 
 #endif //MATRIX_MATRIX_H
