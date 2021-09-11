@@ -3,6 +3,7 @@
 
 #include "Row.h"
 #include <iostream>
+#include <cmath>
 
 //#define IDENTITY_MATRIX 1
 
@@ -57,6 +58,12 @@ public:
     Matrix<T> Trans();
 
     Matrix<T> Minor(int i0, int j0);
+
+    T Det();
+
+    T Trace();
+
+    Matrix<T> Commutator(Matrix<T> other);
 
     friend std::ostream& operator<<(std::ostream& os, const Matrix<T>& matrix) {
         for(int i = 1; i <= matrix.rows; ++i) {
@@ -320,6 +327,45 @@ Matrix<T> Matrix<T>::Minor(int i0, int j0) {
     return m;
 }
 
+
+template<class T>
+T Matrix<T>::Det() {
+    if(this->rows == this->cols) {
+        if(this->rows == 1) {
+            return (*this)[1][1];
+        } else {
+            T res = 0;
+            for(int i = 1; i <= this->cols; ++i) {
+                res += pow(-1, (i + 1)) * (*this)[1][i] * this->Minor(1, i).Det();
+            }
+            return res;
+        }
+    } else {
+
+    }
+}
+
+template<class T>
+T Matrix<T>::Trace() {
+    if(this->rows == this->cols) {
+        T res = 0;
+        for(int i = 1; i <= this->rows; ++i) {
+            res += (*this)[i][i];
+        }
+        return res;
+    } else {
+        return 0;
+    }
+}
+
+template<class T>
+Matrix<T> Matrix<T>::Commutator(Matrix<T> other) {
+    if((this->rows == this->cols) and (other.rows == other.cols) and (this->rows == other.rows)) {
+        return (*this) * other - other * (*this);
+    } else {
+        return (*this);
+    }
+}
 /*template<class T>
 Matrix<T>&& Matrix<T>::operator=(Matrix&& other) noexcept {
     if(this->table != other.table) { // self-assignment
