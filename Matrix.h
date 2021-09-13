@@ -3,23 +3,23 @@
 
 #include "Row.h"
 #include <iostream>
-#include <cmath>
 
-//#define IDENTITY_MATRIX 1
+//bool DEBUG = true;
 
 template<class T>
 class Matrix {
 private:
     Row<T>* table;
-    long long rows;
-    long long cols;
+    size_t rows;
+    size_t cols;
 
     void dMatrix();
+    void initTable();
 
 public:
     Matrix();
 
-    Matrix(long long rows, long long cols);
+    Matrix(size_t rows, size_t cols);
 
     Matrix(const Matrix& other);
 
@@ -31,11 +31,11 @@ public:
 
     Matrix<T> Pow(int p);
 
-    Row<T>& operator[](long long index) const;
+    Row<T>& operator[](size_t index) const;
 
     Matrix<T>& operator=(const Matrix& other);
 
-    //Matrix<T>&& operator=(Matrix&& other) noexcept;
+    Matrix<T>& operator=(Matrix&& other) noexcept;
 
     bool operator==(const Matrix& other);
 
@@ -59,11 +59,7 @@ public:
 
     Matrix<T> Minor(int i0, int j0);
 
-    T Det();
-
-    T Trace();
-
-    Matrix<T> Commutator(Matrix<T> other);
+    //double* Gauss();
 
     friend std::ostream& operator<<(std::ostream& os, const Matrix<T>& matrix) {
         for(int i = 1; i <= matrix.rows; ++i) {
@@ -76,7 +72,7 @@ public:
     }
 
     friend std::istream& operator>>(std::istream& is, Matrix& matrix) {
-        long long nr, nc;
+        size_t nr, nc;
         is >> nr >> nc;
         if(matrix.rows != nr || matrix.cols != nc) { // dif size
             matrix.dMatrix();
@@ -102,19 +98,13 @@ template<class T>
 Matrix<T>::Matrix() : rows(0), cols(0), table(nullptr) {}
 
 template<class T>
-Matrix<T>::Matrix(long long int rows, long long int cols) : cols(cols), rows(rows) {
-    table = new Row<T>[rows];
-    for(int i = 0; i < rows; ++i) {
-        table[i] = Row<T>(cols);
-    }
+Matrix<T>::Matrix(size_t rows, size_t cols) : cols(cols), rows(rows) {
+    initTable();
 }
 
 template<class T>
 Matrix<T>::Matrix(const Matrix& other) : cols(other.cols), rows(other.rows) {
-    table = new Row<T>[rows];
-    for(int i = 0; i < rows; ++i) {
-        table[i] = Row<T>(cols);
-    }
+    initTable();
     for(int i = 1; i <= rows; ++i) {
         for(int j = 1; j <= cols; ++j) {
             (*this)[i][j] = other[i][j];
@@ -130,7 +120,7 @@ Matrix<T>::Matrix(Matrix&& other) noexcept : cols(other.cols), rows(other.rows) 
 }
 
 template<class T>
-Row<T>& Matrix<T>::operator[](long long index) const {
+Row<T>& Matrix<T>::operator[](size_t index) const {
     return table[index - 1];
 }
 
@@ -198,7 +188,8 @@ Matrix<T> Matrix<T>::operator-=(const Matrix& other) {
 
 template<class T>
 Matrix<T> Matrix<T>::operator*(const Matrix<T>& other) const {
-    long long k = this->cols;
+    size_t k = this->cols;
+    //throw std::runtime_error("sdf");
     Matrix<T> m(this->rows, other.cols);
     for(int i = 1; i <= m.rows; ++i) {
         for(int j = 1; j <= m.cols; ++j) {
@@ -221,10 +212,7 @@ Matrix<T>& Matrix<T>::operator=(const Matrix& other) {
             dMatrix();
             this->rows = other.rows;
             this->cols = other.cols;
-            table = new Row<T>[rows];
-            for(int i = 0; i < rows; ++i) {
-                table[i] = Row<T>(cols);
-            }
+            initTable();
         }
         for(int i = 1; i <= rows; ++i) { // copy this <- other
             for(int j = 1; j <= cols; ++j) {
@@ -243,6 +231,7 @@ void Matrix<T>::dMatrix() {
         }
         delete[] table;
     }
+    rows = cols = 0;
 }
 
 template<class T>
@@ -327,47 +316,8 @@ Matrix<T> Matrix<T>::Minor(int i0, int j0) {
     return m;
 }
 
-
 template<class T>
-T Matrix<T>::Det() {
-    if(this->rows == this->cols) {
-        if(this->rows == 1) {
-            return (*this)[1][1];
-        } else {
-            T res = 0;
-            for(int i = 1; i <= this->cols; ++i) {
-                res += pow(-1, (i + 1)) * (*this)[1][i] * this->Minor(1, i).Det();
-            }
-            return res;
-        }
-    } else {
-
-    }
-}
-
-template<class T>
-T Matrix<T>::Trace() {
-    if(this->rows == this->cols) {
-        T res = 0;
-        for(int i = 1; i <= this->rows; ++i) {
-            res += (*this)[i][i];
-        }
-        return res;
-    } else {
-        return 0;
-    }
-}
-
-template<class T>
-Matrix<T> Matrix<T>::Commutator(Matrix<T> other) {
-    if((this->rows == this->cols) and (other.rows == other.cols) and (this->rows == other.rows)) {
-        return (*this) * other - other * (*this);
-    } else {
-        return (*this);
-    }
-}
-/*template<class T>
-Matrix<T>&& Matrix<T>::operator=(Matrix&& other) noexcept {
+Matrix<T>& Matrix<T>::operator=(Matrix&& other) noexcept {
     if(this->table != other.table) { // self-assignment
         if(this->rows != other.rows || this->cols != other.cols) { // dif size
             this->rows = other.rows;
@@ -375,9 +325,63 @@ Matrix<T>&& Matrix<T>::operator=(Matrix&& other) noexcept {
         }
         this->table = other.table;
         other.table = nullptr;
+        other.rows = 0;
+        other.cols = 0;
     }
-    return std::move(*this);
+    return *this;
+}
+
+template<class T>
+void Matrix<T>::initTable() {
+    table = new Row<T>[rows];
+    for(int i = 0; i < rows; ++i) {
+        table[i] = Row<T>(cols);
+    }
+}
+
+/*template<class T>
+double* Matrix<T>::Gauss() {
+    double* ans = new double[rows];
+    Matrix<T> m1 (*this);
+    for (int k = 1; k < rows; ++k) {
+        for (int j = k; j < rows; ++j) {
+            double m = (double)(m1[j][k - 1] / m1[k - 1][k - 1]);
+            for (int i = 0; i < rows + 1; ++i){
+                m1[i][j]=m1[j][i]-m*m1[k-1][i];
+            }
+        }
+    }
+    std::cout<<m1<<std::endl;
+    for (int i=rows-1; i>=0; --i){
+        ans[i]=(double)(m1[i][rows]/m1[i][i]);
+        for (int c=rows-1; c>i; --c){
+            ans[i]=(double)(ans[i]-m1[i][c]*ans[c]/m1[i][i]);
+        }
+    }
+    return ans;
 }*/
 
+/*
+ * doubleCode, make initTable() +
+ * << >> Matrix[i], not Matrix[i][j] +
+ * doubleCode + and +=, - and -=, * and *= +
+ * */
+
+/*throw std::runtime_error("Wrong sizes"); +
+
+#if DEBUG
+#define LOG(msg) std::cout << msg
+#else
+#define LOG(msg)
+#endif
+
+#include <functional> +
+
+void f(int* a, vector<int> b) {}
+
+...
+
+function<void(int*, vector<int>)> my_func = f;
+*/
 
 #endif //MATRIX_MATRIX_H
