@@ -14,6 +14,7 @@ private:
     size_t cols;
 
     void dMatrix();
+
     void initTable();
 
 public:
@@ -39,6 +40,8 @@ public:
 
     bool operator==(const Matrix& other);
 
+    bool operator!=(const Matrix& other);
+
     Matrix<T> operator+(const Matrix& other) const;
 
     Matrix<T> operator-(const Matrix& other) const;
@@ -63,10 +66,7 @@ public:
 
     friend std::ostream& operator<<(std::ostream& os, const Matrix<T>& matrix) {
         for(int i = 1; i <= matrix.rows; ++i) {
-            for(int j = 1; j <= matrix.cols; ++j) {
-                os << matrix[i][j] << '\t';
-            }
-            os << '\n';
+            os << matrix[i] << '\n';
         }
         return os;
     }
@@ -84,9 +84,7 @@ public:
             }
         }
         for(int i = 1; i <= matrix.rows; ++i) { // copy this <- other
-            for(int j = 1; j <= matrix.cols; ++j) {
-                is >> matrix[i][j];
-            }
+            is >> matrix[i];
         }
         return is;
     }
@@ -147,22 +145,14 @@ void Matrix<T>::GetMatrix() {
 template<class T>
 Matrix<T> Matrix<T>::operator+(const Matrix& other) const {
     Matrix m(*this);
-    for(int i = 1; i <= rows; ++i) {
-        for(int j = 1; j <= cols; ++j) {
-            m[i][j] += other[i][j];
-        }
-    }
+    m += other;
     return m;
 }
 
 template<class T>
 Matrix<T> Matrix<T>::operator-(const Matrix& other) const {
     Matrix m(*this);
-    for(int i = 1; i <= rows; ++i) {
-        for(int j = 1; j <= cols; ++j) {
-            m[i][j] -= other[i][j];
-        }
-    }
+    m -= other;
     return m;
 }
 
@@ -337,6 +327,11 @@ void Matrix<T>::initTable() {
     for(int i = 0; i < rows; ++i) {
         table[i] = Row<T>(cols);
     }
+}
+
+template<class T>
+bool Matrix<T>::operator!=(const Matrix& other) {
+    return !(*this == other);
 }
 
 /*template<class T>
