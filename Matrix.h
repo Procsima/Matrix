@@ -324,6 +324,23 @@ Matrix<T> Matrix<T>::Minor(int i0, int j0) {
 }
 
 template<class T>
+T Matrix<T>::Det() {
+    if(this->rows == this->cols) {
+        if(this->rows == 1) {
+            return (*this)[1][1];
+        } else {
+            T res = 0;
+            for(int i = 1; i <= this->cols; ++i) {
+                res += pow(-1, (i + 1)) * (*this)[1][i] * this->Minor(1, i).Det();
+            }
+            return res;
+        }
+    } else {
+
+    }
+}
+
+template<class T>
 Matrix<T>& Matrix<T>::operator=(Matrix&& other) noexcept {
     if(this->table != other.table) { // self-assignment
         if(this->rows != other.rows || this->cols != other.cols) { // dif size
