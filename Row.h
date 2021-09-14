@@ -7,10 +7,11 @@ template<class T>
 class Row {
 private:
     T* arr;
+    size_t size;
 public:
     Row();
 
-    explicit Row(long long size);
+    explicit Row(size_t size);
 
     //Row(const Row & other);
 
@@ -19,6 +20,20 @@ public:
     void dCol();
 
     T& operator[](long long index);
+
+    friend std::ostream& operator<< (std::ostream& os, Row<T> r) {
+        for(int j = 1; j <= r.size; ++j) {
+            os << r[j] << '\t';
+        }
+        return os;
+    }
+
+    friend std::istream& operator>>(std::istream& is, Row<T> r) {
+        for(int j = 1; j <= r.size; ++j) {
+            is >> r[j];
+        }
+        return is;
+    }
 };
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -27,7 +42,7 @@ template<class T>
 Row<T>::Row() : arr(nullptr) {}
 
 template<class T>
-Row<T>::Row(long long int size) {
+Row<T>::Row(size_t size) : size(size) {
     arr = new T[size];
 }
 
