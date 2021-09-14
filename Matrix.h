@@ -6,6 +6,11 @@
 
 //bool DEBUG = true;
 
+enum class MatrixTypes {
+    IdentityMatrix,
+    ZeroMatrix
+};
+
 template<class T>
 class Matrix {
 private:
@@ -62,7 +67,7 @@ public:
 
     Matrix<T> Minor(int i0, int j0);
 
-    //double* Gauss();
+    double* Gauss();
 
     friend std::ostream& operator<<(std::ostream& os, const Matrix<T>& matrix) {
         for(int i = 1; i <= matrix.rows; ++i) {
@@ -334,49 +339,28 @@ bool Matrix<T>::operator!=(const Matrix& other) {
     return !(*this == other);
 }
 
-/*template<class T>
+template<class T>
 double* Matrix<T>::Gauss() {
     double* ans = new double[rows];
-    Matrix<T> m1 (*this);
-    for (int k = 1; k < rows; ++k) {
-        for (int j = k; j < rows; ++j) {
-            double m = (double)(m1[j][k - 1] / m1[k - 1][k - 1]);
-            for (int i = 0; i < rows + 1; ++i){
-                m1[i][j]=m1[j][i]-m*m1[k-1][i];
+    Matrix<T> m1(*this);
+    std::cout << m1;
+    for(int k = 1; k <= rows; ++k) {
+        for(int j = k; j <= rows; ++j) {
+            double m = (double) m1[j][k] / m1[k][k];
+            for(int i = 1; i <= rows; ++i) {
+                m1[i][j] = m1[j][i] - m * m1[k][i];
             }
         }
     }
-    std::cout<<m1<<std::endl;
-    for (int i=rows-1; i>=0; --i){
-        ans[i]=(double)(m1[i][rows]/m1[i][i]);
-        for (int c=rows-1; c>i; --c){
-            ans[i]=(double)(ans[i]-m1[i][c]*ans[c]/m1[i][i]);
+
+    for(int i = rows; i >= 1; --i) {
+        ans[i - 1] = (double) m1[i][rows] / m1[i][i];
+        for(int c = rows; c >= i; --c) {
+            ans[i - 1] -= double(m1[i][c] * ans[c - 1]) / m1[i][i];
         }
     }
+    std::cout << m1;
     return ans;
-}*/
-
-/*
- * doubleCode, make initTable() +
- * << >> Matrix[i], not Matrix[i][j] +
- * doubleCode + and +=, - and -=, * and *= +
- * */
-
-/*throw std::runtime_error("Wrong sizes"); +
-
-#if DEBUG
-#define LOG(msg) std::cout << msg
-#else
-#define LOG(msg)
-#endif
-
-#include <functional> +
-
-void f(int* a, vector<int> b) {}
-
-...
-
-function<void(int*, vector<int>)> my_func = f;
-*/
+}
 
 #endif //MATRIX_MATRIX_H
