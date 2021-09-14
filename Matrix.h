@@ -37,6 +37,18 @@ public:
 
     Matrix<T> Pow(int p);
 
+    Matrix<T> rSwap(size_t i0, size_t j0);
+
+    Matrix<T> cSwap(size_t i0, size_t j0);
+
+    Matrix<T> rAdd(size_t i0, size_t j0, int a);
+
+    Matrix<T> cAdd(size_t i0, size_t j0, int a);
+
+    Matrix<T> rMult(size_t i0, int a);
+
+    Matrix<T> cMult(size_t i0, int a);
+
     Row<T>& operator[](size_t index) const;
 
     Matrix<T>& operator=(const Matrix& other);
@@ -361,6 +373,62 @@ double* Matrix<T>::Gauss() {
     }
     std::cout << m1;
     return ans;
+}
+
+template<class T>
+Matrix<T> Matrix<T>::rSwap(size_t i0, size_t j0) {
+    Matrix<T> m(*this);
+    for(int i = 1; i <= cols; ++i) {
+        m[i0][i] = (*this)[j0][i];
+        m[j0][i] = (*this)[i0][i];
+    }
+    return m;
+}
+
+template<class T>
+Matrix<T> Matrix<T>::cSwap(size_t i0, size_t j0) {
+    Matrix<T> m(*this);
+    for(int i = 1; i <= rows; ++i) {
+        m[i][i0] = (*this)[i][j0];
+        m[i][j0] = (*this)[i][i0];
+    }
+    return m;
+}
+
+template<class T>
+Matrix<T> Matrix<T>::rAdd(size_t i0, size_t j0, int a) {
+    Matrix<T> m(*this);
+    for(int i = 1; i <= cols; ++i) {
+        m[i0][i] += (*this)[j0][i] * a;
+    }
+    return m;
+}
+
+template<class T>
+Matrix<T> Matrix<T>::cAdd(size_t i0, size_t j0, int a) {
+    Matrix<T> m(*this);
+    for(int i = 1; i <= rows; ++i) {
+        m[i][i0] += (*this)[i][j0] * a;
+    }
+    return m;
+}
+
+template<class T>
+Matrix<T> Matrix<T>::rMult(size_t i0, int a) {
+    Matrix<T> m(*this);
+    for(int i = 1; i <= cols; ++i) {
+        m[i0][i] *= a;
+    }
+    return m;
+}
+
+template<class T>
+Matrix<T> Matrix<T>::cMult(size_t i0, int a) {
+    Matrix<T> m(*this);
+    for(int i = 1; i <= rows; ++i) {
+        m[i][i0] *= a;
+    }
+    return m;
 }
 
 #endif //MATRIX_MATRIX_H
