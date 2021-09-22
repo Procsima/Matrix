@@ -75,11 +75,17 @@ public:
 
     Matrix<T>& operator*=(const Matrix<T>& other);
 
+    T Det();
+
     Matrix<T> Trans();
 
     Matrix<T> Minor(int i0, int j0);
 
     double* Gauss();
+
+    T Alg(int i, int j);
+
+    Matrix<T> Adj();
 
     friend std::ostream& operator<<(std::ostream& os, const Matrix<T>& matrix) {
         for(int i = 1; i <= matrix.rows; ++i) {
@@ -390,6 +396,22 @@ double* Matrix<T>::Gauss() {
     }
     std::cout << m1;
     return ans;
+}
+
+template <class T>
+T Matrix<T>::Alg(int i, int j) {
+    return pow(-1, i + j) * this->Minor(i, j).Det();
+}
+    
+template <class T>
+Matrix<T> Matrix<T>::Adj() {
+    Matrix<T> m1(*this);
+    for (int i = 0; i <= this->rows; ++i) {
+        for (int j = 0; j <= this->cols; ++j) {
+            m1[i][j] = this->Alg(i, j);
+        }
+    }
+    return m1
 }
 
 template<class T>
