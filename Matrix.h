@@ -3,6 +3,7 @@
 
 #include "Row.h"
 #include <iostream>
+#include <cmath>
 
 //bool DEBUG = true;
 
@@ -271,8 +272,19 @@ bool Matrix<T>::operator==(const Matrix& other) {
 template<class T>
 Matrix<T> Matrix<T>::Pow(int p) {
     Matrix<T> m(*this);
-    for(int i = 0; i < p - 1; ++i) {
-        m *= (*this);
+    if(p > 0) {
+        for(int i = 0; i < p - 1; ++i) {
+            m *= (*this);
+        }
+    } else if(p == 0) {
+        m = MatrixTypes::IdentityMatrix;
+    } else {
+        m = this->Adj();
+        for(int i = 1; i <= this->rows; ++i) {
+            for(int j = 1; j <= this->cols; ++j)
+                m[i][j] / this->Det();
+        }
+        m.pow(-p);
     }
     return m;
 }
@@ -398,20 +410,20 @@ double* Matrix<T>::Gauss() {
     return ans;
 }
 
-template <class T>
+template<class T>
 T Matrix<T>::Alg(int i, int j) {
     return pow(-1, i + j) * this->Minor(i, j).Det();
 }
-    
-template <class T>
+
+template<class T>
 Matrix<T> Matrix<T>::Adj() {
     Matrix<T> m1(*this);
-    for (int i = 0; i <= this->rows; ++i) {
-        for (int j = 0; j <= this->cols; ++j) {
+    for(int i = 1; i <= this->rows; ++i) {
+        for(int j = 1; j <= this->cols; ++j) {
             m1[i][j] = this->Alg(i, j);
         }
     }
-    return m1
+    return m1;
 }
 
 template<class T>
